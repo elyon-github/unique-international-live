@@ -1,0 +1,34 @@
+<odoo>
+	<record id="view_sales_order_tree_inherit" model="ir.ui.view">
+		<field name="name">sales order tree inherit</field>
+		<field name="model">sale.order</field>
+		<field name="inherit_id" ref="sale.view_order_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='payment_term_id']" position="after">
+				<field name="is_a_project_head"/>
+			</xpath>
+			<xpath expr="//page[@name='other_information']" position='after'>
+				<page string="Online Sales" name="online_sales">
+					<group name="e_comm" string="ECommerce">
+						<field name="waybill_no" string="Waybill No."/>
+						<field name="tracking_no" string="Tracking No."/>
+						<field name="courier" string="Courier"/>
+					</group>
+				</page> 
+			</xpath>
+			<xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+				<field name="lot_price" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
+			</xpath>
+			<xpath expr="//field[@name='order_line'] / tree / field[@name='tax_id']" position="after">
+				<field name="labor_component" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
+			</xpath>
+			<xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+				<field name="rel_wt" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
+			</xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='rel_wt']" position="after">
+				<field name="progress" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
+			</xpath>
+			<!-- <field name="price_unit" attrs="{'readonly': [('parent.is_a_project_head', '=', False)]}"/> -->
+		</field>
+	</record>
+</odoo>
