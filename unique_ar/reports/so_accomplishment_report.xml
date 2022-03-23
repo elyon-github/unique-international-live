@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding='utf-8'?>
+<odoo>
+	<template id="so_accomplishment_report">
+		<t t-call='web.basic_layout'>
+			<div class="page">
+				<t t-foreach="docs" t-as="doc">
+					<t t-set='cust' t-value="request.env['res.partner'].search([('id', '=', doc.partner_id.id)])"/>
+					<t t-set='template' t-value="request.env['sale.order.template'].search([('id', '=', doc.sale_order_template_id.id)])"/>
+
+					<center>
+					<h5>Accomplishment Report</h5>
+					<h6><t t-esc="cust.name"/></h6>
+					<h6><t t-esc="template.name"/></h6>
+					</center>
+
+					
+					<t t-set='val' t-value="env['sale.order'].fetch_ac_values(doc.id)"/>
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">#</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Description</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Unit</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Qty</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Unit Price</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Total Amount</th>
+								<th rowspan="3" scope="col" class="text-center align-middle font-weight-bold">Rel. Wt.%</th>
+								<th colspan="6" scope="col" class="text-center align-middle font-weight-bold">Accomplishment</th>
+							</tr>
+							<tr>
+								<th colspan="2" scope="col" class="text-center font-weight-bold">Previous</th>
+								<th colspan="2" scope="col" class="text-center font-weight-bold">This Period</th>
+								<th colspan="2" scope="col" class="text-center font-weight-bold">To Date</th>
+							</tr>
+							<tr>
+								<th scope="col">%</th>
+								<th scope="col">Amount</th>
+								<th scope="col">%</th>
+								<th scope="col">Amount</th>
+								<th scope="col">%</th>
+								<th scope="col">Amount</th>
+							</tr>
+						</thead>
+						<tbody>
+							<t t-set="ctr" t-value="0"/>
+							<t t-set="base_amt" t-value="0"/>
+							<t t-set="prev_amt" t-value="0"/>
+							<t t-set="this_amt" t-value="0"/>
+							<t t-set="todate_amt" t-value="0"/>
+							<t t-set="relwt_amt" t-value="0"/>
+
+							<t t-set="base_amt_total" t-value="0"/>
+							<t t-set="prev_amt_total" t-value="0"/>
+							<t t-set="this_amt_total" t-value="0"/>
+							<t t-set="todate_amt_total" t-value="0"/>
+							<t t-set="relwt_amt_total" t-value="0"/>
+							
+							<t t-foreach='val' t-as='ac_dat'>
+								<t t-set="base_amt" t-value="base_amt + ac_dat['Base']['Amt']"/>
+								<t t-set="prev_amt" t-value="prev_amt + ac_dat['Previous']['Amt']"/>
+								<t t-set="this_amt" t-value="this_amt + ac_dat['Current']['Amt']"/>
+								<t t-set="todate_amt" t-value="todate_amt + ac_dat['To-date']['Amt']"/>
+								<t t-set="relwt_amt" t-value="relwt_amt + ac_dat['Base']['RelWt']"/>
+
+								<t t-set="base_amt_total" t-value="base_amt_total + ac_dat['Base']['Amt']"/>
+								<t t-set="prev_amt_total" t-value="prev_amt_total + ac_dat['Previous']['Amt']"/>
+								<t t-set="this_amt_total" t-value="this_amt_total + ac_dat['Current']['Amt']"/>
+								<t t-set="todate_amt_total" t-value="todate_amt_total + ac_dat['To-date']['Amt']"/>
+								<t t-set="relwt_amt_total" t-value="relwt_amt_total + ac_dat['Base']['RelWt']"/>
+
+								<t t-if='(ac_dat["Base"]["type"] == "section" and ctr != 0)'>
+									<tr>
+										<td colspan="4" class="text-right">Subtotal</td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(base_amt,2))"/></td>
+										<td class="text-right"><t t-esc="'{:,}'.format(round(relwt_amt,5))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(prev_amt,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(this_amt,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(todate_amt,2))"/></td>
+									</tr>
+									
+									<t t-set="base_amt" t-value="0"/>
+									<t t-set="prev_amt" t-value="0"/>
+									<t t-set="this_amt" t-value="0"/>
+									<t t-set="todate_amt" t-value="0"/>
+									<t t-set="relwt_amt" t-value="0"/>
+								</t>
+
+								<t t-if='ac_dat["Base"]["type"] == "section"'>
+									<tr class="bg-info">
+										<td><t t-esc='ac_dat["Base"]["seq"]'/></td>
+										<td colspan="15"><t t-esc='ac_dat["Base"]["Desc"]'/></td>
+									</tr>
+								</t>
+
+								<t t-if='ac_dat["Base"]["type"] != "section"'>
+									<tr>
+										<td><t t-esc='ac_dat["Base"]["seq"]'/></td>
+										<td><t t-esc='ac_dat["Base"]["Desc"]'/></td>
+										<td><t t-esc='ac_dat["Base"]["unit"]'/></td>
+										<td><t t-esc='ac_dat["Base"]["qty"]'/></td>
+										<td><t t-esc='"{:,}".format(round(ac_dat["Base"]["priceUnit"],2))'/></td>
+										<td><t t-esc='"{:,}".format(round(ac_dat["Base"]["Amt"],2))'/></td>
+										<td><t t-esc='ac_dat["Base"]["RelWt"]'/></td>
+										
+										<td><t t-esc='round(ac_dat["Previous"]["%"],2)'/></td>
+										<td><t t-esc='"{:,}".format(round(ac_dat["Previous"]["Amt"],2))'/></td>
+
+										<td><t t-esc='round(ac_dat["Current"]["%"],2)'/></td>
+										<td><t t-esc='"{:,}".format(round(ac_dat["Current"]["Amt"],2))'/></td>
+
+										<td><t t-esc='round(ac_dat["To-date"]["%"],2)'/></td>
+										<td><t t-esc='"{:,}".format(round(ac_dat["To-date"]["Amt"],2))'/></td>
+									</tr>
+								</t>
+
+								<t t-if='int(len(val)) == int(ctr+1)'>
+									<tr>
+										<td colspan="4" class="text-right">Subtotal</td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(base_amt,2))"/></td>
+										<td class="text-right"><t t-esc="'{:,}'.format(round(relwt_amt,5))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(prev_amt,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(this_amt,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(todate_amt,2))"/></td>
+									</tr>
+
+									<tr>
+										<strong>
+										<td colspan="4" class="text-right">Total</td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(base_amt_total,2))"/></td>
+										<td class="text-right"><t t-esc="'{:,}'.format(round(relwt_amt_total,0))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(prev_amt_total,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(this_amt_total,2))"/></td>
+										<td colspan="2" class="text-right"><t t-esc="'{:,}'.format(round(todate_amt_total,2))"/></td>
+										</strong>
+									</tr>
+									
+									<t t-set="base_amt" t-value="0"/>
+									<t t-set="prev_amt" t-value="0"/>
+									<t t-set="this_amt" t-value="0"/>
+									<t t-set="todate_amt" t-value="0"/>
+									<t t-set="relwt_amt" t-value="0"/>
+								</t>
+
+							<t t-set="ctr" t-value="ctr+1"/>
+							</t>
+						</tbody>
+					</table>
+				</t>
+			</div>
+		</t>
+	</template>
+</odoo>
