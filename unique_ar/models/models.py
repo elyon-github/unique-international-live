@@ -133,11 +133,11 @@ class unique_fields_header(models.Model):
         # return (query1.format(so_id), query2.format(so_id))
         return (arr1, arr2)
     
-    def _process_lines(self, val):
-        unique = self._fetch_unique_val(val)
+    # def _process_lines(self, val):
+    #     unique = self._fetch_unique_val(val)
 
-        return unique
-        # return val
+    #     return unique
+    #     # return val
 
     def _process_lines(self, val):
         arr = []
@@ -150,7 +150,7 @@ class unique_fields_header(models.Model):
         return toList
 
     def _process_array(self, val, inv):
-        base = val[0]
+        base = val[0][1:]
         billing = val[1]
         invoices = inv
 
