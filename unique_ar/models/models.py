@@ -133,11 +133,11 @@ class unique_fields_header(models.Model):
         # return (query1.format(so_id), query2.format(so_id))
         return (arr1, arr2)
     
-    def _process_lines(self, val):
-        unique = self._fetch_unique_val(val)
+    # def _process_lines(self, val):
+    #     unique = self._fetch_unique_val(val)
 
-        return unique
-        # return val
+    #     return unique
+    #     # return val
 
     def _process_lines(self, val):
         arr = []
@@ -150,7 +150,7 @@ class unique_fields_header(models.Model):
         return toList
 
     def _process_array(self, val, inv):
-        base = val[0]
+        base = val[0][1:]
         billing = val[1]
         invoices = inv
 
@@ -206,11 +206,11 @@ class unique_fields_header(models.Model):
                                 current_subarr['Amt'] += float(det[15])
                                 # current_subarr['Inv#'] = str(det[5])
                     line_ctr += 1
-                ### TO DATE ###
-                todate_subarr['Desc'] = str(arr_val[6])
-                todate_subarr['%'] += float(arr_val[8])*100
-                todate_subarr['Amt'] += round(float(arr_val[7])*float(arr_val[8]), 2)
-                # todate_subarr['Inv#'] = str(det[5])
+            ### TO DATE ###
+            todate_subarr['Desc'] = str(arr_val[6])
+            todate_subarr['%'] += float(arr_val[8])*100
+            todate_subarr['Amt'] += round(float(arr_val[7])*float(arr_val[8]), 2)
+            # todate_subarr['Inv#'] = str(det[5])
             
             temp['Base'].update(base_subarr)
             temp['Previous'].update(previous_subarr)
