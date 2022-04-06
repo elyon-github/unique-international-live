@@ -64,7 +64,7 @@ class unique_fields(models.Model):
                 val = float(record.price_subtotal) / float(total)
                 
             record.update({
-                'rel_wt': val
+                'rel_wt': total
             })
     
     @api.onchange('lot_price')
@@ -110,11 +110,13 @@ class unique_fields_header(models.Model):
     
     def _get_array_values(self, so_id):
         query1 = """SELECT A1.name, A1.analytic_account_id, A1.amount_untaxed, A1.amount_tax, A1.amount_total,
-            A2.id, A2.name, A2.price_total, A2.qty_invoiced, A2.progress, A2.display_type, A2.rel_wt, A2.price_unit, product_uom_qty,
-            A3.name
+            A2.id, A2.name, A2.price_total, A2.qty_invoiced, A2.progress, A2.display_type, A2.rel_wt, A2.price_unit, 
+            product_uom_qty, A3.name, A2.price_subtotal, A5.type, A5.service_type 
             FROM sale_order A1 
             LEFT JOIN sale_order_line A2 ON A1.id = A2.order_id 
             LEFT JOIN uom_uom A3 ON A2.product_uom = A3.id
+            LEFT JOIN product_product A4 ON A4.id = A2.product_id
+            LEFT JOIN product_template A5 ON A5.id = A4.product_tmpl_id
             WHERE A1.id = {0} ORDER BY A2.id ASC"""
 
         query2 = """SELECT A1.name, A1.amount_untaxed, A1.amount_tax, A1.amount_total, 
@@ -183,7 +185,7 @@ class unique_fields_header(models.Model):
                 base_subarr['Desc'] = arr_val[6]
                 base_subarr['Amt'] = arr_val[7]
                 base_subarr['type'] = 'line'
-                base_subarr['RelWt'] = arr_val[11]
+                base_subarr['RelWt'] = round(arr_val[15]/arr_val[2], 5)
                 base_subarr['unit'] = arr_val[14]
                 base_subarr['qty'] = arr_val[13]
                 base_subarr['priceUnit'] = arr_val[12]
@@ -192,25 +194,32 @@ class unique_fields_header(models.Model):
                 line_ctr = 0
                 for line in invoices:
                     for det in billing:
+                        storable_uom = self.compute_percent(det[13],arr_val[13],det[13],arr_val[16],arr_val[17])
+
                         ### previous ###
                         if line_ctr > 0:
                             if line == det[5] and str(arr_val[6]) == str(det[12]):
                                 previous_subarr['Desc'] = str(det[12])
-                                previous_subarr['%'] += float(det[13])*100
+                                # previous_subarr['%'] += float(det[13])*100
+                                previous_subarr['%'] += storable_uom
                                 previous_subarr['Amt'] += float(det[15])
                         ### THIS PERIOD ###
                         if line_ctr == 0:
                             if line == det[5] and str(arr_val[6]) == str(det[12]):
                                 current_subarr['Desc'] = str(det[12])
-                                current_subarr['%'] += float(det[13])*100
+                                # current_subarr['%'] += float(det[13])*100
+                                current_subarr['%'] += storable_uom
                                 current_subarr['Amt'] += float(det[15])
                                 # current_subarr['Inv#'] = str(det[5])
                     line_ctr += 1
-            ### TO DATE ###
-            todate_subarr['Desc'] = str(arr_val[6])
-            todate_subarr['%'] += float(arr_val[8])*100
-            todate_subarr['Amt'] += round(float(arr_val[7])*float(arr_val[8]), 2)
-            # todate_subarr['Inv#'] = str(det[5])
+                total_storable = self.compute_percent(arr_val[8],arr_val[13],arr_val[8],arr_val[16],arr_val[17])
+
+                ### TO DATE ###
+                todate_subarr['Desc'] = str(arr_val[6])
+                # todate_subarr['%'] += float(arr_val[8])*100
+                todate_subarr['%'] += total_storable
+                todate_subarr['Amt'] += round(float(arr_val[7])*float(arr_val[8]), 2)
+                # todate_subarr['Inv#'] = str(det[5])
             
             temp['Base'].update(base_subarr)
             temp['Previous'].update(previous_subarr)
@@ -220,3 +229,9 @@ class unique_fields_header(models.Model):
             arr.append(temp)
         
         return arr
+    
+    def compute_percent(self, default, base, div, type, service_type):
+        if type != 'service':
+            return round((div/base)*100, 1)
+        else:
+            return round(default*100, 1)
