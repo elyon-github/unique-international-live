@@ -25,9 +25,9 @@
 			<xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
 				<field name="rel_wt" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
 			</xpath>
-            <xpath expr="//field[@name='order_line']/tree/field[@name='rel_wt']" position="after">
+            <!-- <xpath expr="//field[@name='order_line']/tree/field[@name='rel_wt']" position="after">
 				<field name="progress" attrs="{'column_invisible': [('parent.is_a_project_head', '=', False)]}"/>
-			</xpath>
+			</xpath> -->
 			<!-- <field name="price_unit" attrs="{'readonly': [('parent.is_a_project_head', '=', False)]}"/> -->
 		</field>
 	</record>
