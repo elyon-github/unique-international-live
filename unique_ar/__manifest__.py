@@ -27,7 +27,6 @@
         # 'views/views.xml',
         'views/templates.xml',
         'views/inherit.xml',
-        'reports/report_binding.xml',
         'reports/so_accomplishment_report.xml',
         'reports/unique_ar_paper_format.xml',
     ],
