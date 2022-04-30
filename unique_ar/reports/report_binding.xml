@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding='utf-8'?>
 <odoo>
-	<record id="so_accomplishment_report" model="ir.actions.report">
+	<record id="so_accomplishment_report_bind" model="ir.actions.report">
 		<field name="name">Project Accomplishment Report</field>
 		<field name="model">sale.order</field>
 		<field name="report_type">qweb-pdf</field>
