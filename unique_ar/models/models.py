@@ -64,7 +64,7 @@ class unique_fields(models.Model):
                 val = float(record.price_subtotal) / float(total)
                 
             record.update({
-                'rel_wt': total
+                'rel_wt': val
             })
     
     @api.onchange('lot_price')
@@ -121,9 +121,9 @@ class unique_fields_header(models.Model):
 
         query2 = """SELECT A1.name, A1.amount_untaxed, A1.amount_tax, A1.amount_total, 
             A2.id, A2.name, A2.invoice_date, A2.amount_untaxed, A2.amount_tax, A2.amount_total,
-            A3.id, A3.date, A3.name, A3.quantity, A3.price_subtotal, A3.price_total, A3.display_type
+            A3.id, A3.date, A3.name, A3.quantity, A3.price_subtotal, A3.price_total, A3.display_type, A2.date
             FROM sale_order A1 
-            LEFT JOIN account_move A2 ON A1.name = A2.invoice_origin
+            LEFT JOIN account_move A2 ON A1.name = A2.invoice_origin AND A2.state = 'posted' 
             LEFT JOIN account_move_line A3 ON A2.id = A3.move_id AND exclude_from_invoice_tab = 'false' 
             WHERE A1.id = '{0}' ORDER BY A2.id ASC"""
         
@@ -153,6 +153,7 @@ class unique_fields_header(models.Model):
 
     def _process_array(self, val, inv):
         base = val[0][1:]
+        # dp = val[0][1]
         billing = val[1]
         invoices = inv
 
@@ -169,7 +170,7 @@ class unique_fields_header(models.Model):
                 'To-date':{}
             }
 
-            base_subarr = {'seq':0, 'Desc':"", 'Amt':0, 'type':None, 'RelWt':0, 'unit':0, 'qty':0, 'priceUnit':0}
+            base_subarr = {'seq':0, 'Desc':"", 'Amt':0, 'type':None, 'RelWt':0, 'unit':0, 'qty':0, 'priceUnit':0, 'billing_num': len(inv), 'date': ""}
             previous_subarr = {'Desc':"", '%':0, 'Amt':0}
             current_subarr = {'Desc':"", '%':0, 'Amt':0}
             todate_subarr = {'Desc':"", '%':0, 'Amt':0}
@@ -195,6 +196,7 @@ class unique_fields_header(models.Model):
                 for line in invoices:
                     for det in billing:
                         storable_uom = self.compute_percent(det[13],arr_val[13],det[13],arr_val[16],arr_val[17])
+                        base_subarr['date'] = det[17]
 
                         ### previous ###
                         if line_ctr > 0:
