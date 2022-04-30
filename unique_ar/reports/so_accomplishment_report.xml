@@ -18,7 +18,7 @@
 						</div>
 						<div class='row'><h6>PROJECT: <t t-esc="template.name"/></h6></div>
 						<div class='row'><h6>COMPANY: <t t-esc="cust.name"/></h6></div>
-						<div class='row'><h6>DATE: <t t-esc="dp_dat['Base']['date']"/></h6></div>
+						<div class='row'><h6>DATE: <t t-esc="dp_dat['Base']['date'].strftime('%A - %B %d, %Y')"/></h6></div>
 						
 						<t t-set="base_amt_total" t-value="0"/>
 						<t t-set="prev_amt_total" t-value="0"/>
