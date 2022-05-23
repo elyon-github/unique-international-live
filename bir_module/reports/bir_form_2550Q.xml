@@ -63,39 +63,39 @@
 
 						<div class="left" style="position:absolute;top:100px;left:49px;width:500px"><t t-esc="payor.name"/></div>
 						<div class="right" style="position: absolute; top:99px; left: 800px; letter-spacing: 13px; font-size: 17px"><t t-esc="payor.mobile"/></div>
-						<div class="left" style="position: absolute; top:145px; left:49px;width:500px;"><small><t t-esc="payor.street + ', ' + payor.city"/></small></div>
+						<div class="left" style="position: absolute; top:145px; left:49px;width:500px;"><small><t t-esc="payor.contact_address_complete"/></small></div>
 						<div class="right" style="position: absolute; top:147px; left: 915px; letter-spacing: 9px; font-size: 18px"><t t-esc="payor.zip"/></div>
 					</div>
 														<!--center container of tax output-->
 					<div class="container" style="position:absolute; text-align:left; color:black; top:370px; width:100%;">
-						<div class="center" style="position: absolute; top: 10px; left: 492px;"><t t-esc="val[0]['12A']"/></div>
-						<div class="center" style="position: absolute; top: 29px; left: 492px;"><t t-esc="val[0]['13A']"/></div>
-						<div class="center" style="position: absolute; top: 47px; left: 492px;"><t t-esc="val[0]['14']"/></div>
-						<div class="center" style="position: absolute; top: 65px; left: 492px;"><t t-esc="val[0]['15']"/></div>
-						<div class="center" style="position: absolute; top: 83px; left: 492px;"><t t-esc="val[0]['16A']"/></div>
+						<div class="center" style="position: absolute; top: 10px; left: 492px;"><t t-esc="'{:,}'.format(round(val[0]['12A'],2))"/></div>
+						<div class="center" style="position: absolute; top: 29px; left: 492px;"><t t-esc="'{:,}'.format(round(val[0]['13A'],2))"/></div>
+						<div class="center" style="position: absolute; top: 47px; left: 492px;"><t t-esc="'{:,}'.format(round(val[0]['14'],2))"/></div>
+						<div class="center" style="position: absolute; top: 65px; left: 492px;"><t t-esc="'{:,}'.format(round(val[0]['15'],2))"/></div>
+						<div class="center" style="position: absolute; top: 83px; left: 492px;"><t t-esc="'{:,}'.format(round(val[0]['16A'],2))"/></div>
 
-						<div class="right" 	style="position: absolute; top: 10px; left: 770px;"><t t-esc="val[0]['12B']"/></div>
-						<div class="right" 	style="position: absolute; top: 30px; left: 770px;"><t t-esc="val[0]['13B']"/></div>
-						<div class="right" 	style="position: absolute; top: 83px; left: 770px;"><t t-esc="val[0]['16B']"/></div>
+						<div class="right" 	style="position: absolute; top: 10px; left: 770px;"><t t-esc="'{:,}'.format(round(val[0]['12B'],2))"/></div>
+						<div class="right" 	style="position: absolute; top: 30px; left: 770px;"><t t-esc="'{:,}'.format(round(val[0]['13B'],2))"/></div>
+						<div class="right" 	style="position: absolute; top: 83px; left: 770px;"><t t-esc="'{:,}'.format(round(val[0]['16B'],2))"/></div>
 
 					</div>
 						<!--lower container of tax output-->
 					<div class="container" style="position:absolute; text-align:left; color:black; top:642px; width:100%;">
 
-						<div class="left" style="position: absolute; top: 10px; left: 492px;"><t t-esc="val[1]['E']"/></div>
-						<div class="left" style="position: absolute; top: 29px; left: 492px;"><t t-esc="val[1]['G']"/></div>
-						<div class="left" style="position: absolute; top: 47px; left: 492px;"><t t-esc="val[1]['I']"/></div>
-						<div class="left" style="position: absolute; top: 65px; left: 492px;"><t t-esc="val[1]['K']"/></div>
-						<div class="left" style="position: absolute; top: 83px; left: 492px;"><t t-esc="val[1]['M']"/></div>
+						<div class="left" style="position: absolute; top: 10px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['E'],2))"/></div>
+						<div class="left" style="position: absolute; top: 29px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['G'],2))"/></div>
+						<div class="left" style="position: absolute; top: 47px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['I'],2))"/></div>
+						<div class="left" style="position: absolute; top: 65px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['K'],2))"/></div>
+						<div class="left" style="position: absolute; top: 83px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['M'],2))"/></div>
 						<div class="left" style="position: absolute; top: 101px; left: 492px;">0</div>
 						<div class="left" style="position: absolute; top: 119px; left: 492px;"><t t-esc="val[1]['P1']"/></div>
 
-						<div class="right" 	style="position: absolute; top: 10px; left: 770px;"><t t-esc="val[1]['F']"/></div>
-						<div class="right" 	style="position: absolute; top: 29px; left: 770px;"><t t-esc="val[1]['H']"/></div>
-						<div class="right" 	style="position: absolute; top: 47px; left: 770px;"><t t-esc="val[1]['J']"/></div>
-						<div class="right" 	style="position: absolute; top: 65px; left: 770px;"><t t-esc="val[1]['L']"/></div>
+						<div class="right" 	style="position: absolute; top: 10px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['F'],2))"/></div>
+						<div class="right" 	style="position: absolute; top: 29px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['H'],2))"/></div>
+						<div class="right" 	style="position: absolute; top: 47px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['J'],2))"/></div>
+						<div class="right" 	style="position: absolute; top: 65px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['L'],2))"/></div>
 						<div class="right" 	style="position: absolute; top:100px; left: 770px;">0</div>
-						<div class="right" 	style="position: absolute; top:137px; left: 770px;"><t t-esc="val[1]['P2']"/></div>
+						<div class="right" 	style="position: absolute; top:137px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['P2'],2))"/></div>
 						<!-- <div class="right" 	style="position: absolute; top:149px; left: 850px;"><t t-esc='trigger'/></div> -->
 					</div>	
 				</div>			

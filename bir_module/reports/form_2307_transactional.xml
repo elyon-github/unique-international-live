@@ -51,7 +51,7 @@
 							<div class="left" style="position: absolute; top:143px; left:658px; letter-spacing:14px; font-size:23px;width:200px;"><t t-esc="payee_vat[3]"/></div>
 
 							<div class="left" style="position: absolute;top:205px;left:55px;"><t t-esc="payee.name"/></div>
-							<div class="left" style="position: absolute; top:260px; left:55px;"><small><t t-esc="payee.street + ', ' + payee.city"/></small></div>
+							<div class="left" style="position: absolute; top:260px; left:55px;"><small><t t-esc="payee.contact_address_complete"/></small></div>
 							<div class="right" style="position: absolute; top:257px; left: 988px; letter-spacing: 5px; font-size: 21px" ><t t-esc="payee.zip"/></div>
 
 							<!-- ======================================== PAYOR ==================================== -->
@@ -63,32 +63,34 @@
 							<div class="left" style="position: absolute; top:385px; left:658px; letter-spacing:14px; font-size:23px;width:200px;"><t t-esc="payor_vat[3]"/></div>
 
 							<div class="left" style="position: absolute; top:445px; left:55px;"><t t-esc="payor.name"/></div>
-							<div class="left" style="position: absolute; top:500px; left:55px;"><small><t t-esc="payor.street + ', ' + payor.city"/></small></div>
+							<div class="left" style="position: absolute; top:500px; left:55px;"><small><t t-esc="payor.contact_address_complete"/></small></div>
 							<div class="right" style="position: absolute; top:497px; left: 988px; letter-spacing: 5px; font-size: 21px" ><t t-esc="payor.zip"/></div>
 								
 						</div>
 
 						<!-- FORM ITEM LINES -->
-						<t t-set="processed" t-value="env['account.move'].process_2307_transactional([values[0], doc.invoice_date])"/>
-						<div class="container" style="padding-top:188.5mm;font-size:15px;padding-left:50px;width:100%; position: absolute;">
-							<t t-foreach="processed" t-as="val">
-								<!-- <t t-set="quarter" t-value="env['account.move'].get_bir_month_num(val[6])"/> -->
-								<div class="row">
-									<div style="width:270px;text-align:center;padding-top:6.5px;"><t t-esc='val["desc"]'/></div>
+						<t t-if="len(values[0]) > 0">
+							<t t-set="processed" t-value="env['account.move'].process_2307_transactional([values[0], doc.invoice_date])"/>
+							<div class="container" style="padding-top:188.5mm;font-size:15px;padding-left:50px;width:100%; position: absolute;">
+								<t t-foreach="processed" t-as="val">
+									<!-- <t t-set="quarter" t-value="env['account.move'].get_bir_month_num(val[6])"/> -->
+									<div class="row">
+										<div style="width:270px;text-align:center;padding-top:6.5px;"><t t-esc='val["desc"]'/></div>
 
-									<div style="width:21mm;text-align:center;padding-top:6.5px;"><t t-esc='val["code"]'/></div>
+										<div style="width:21mm;text-align:center;padding-top:6.5px;"><t t-esc='val["code"]'/></div>
 
-									<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='val["m1"]'/></div>
-									<div style="width:36mm;text-align:center;padding-top:6.5px;"><t t-esc='val["m2"]'/></div>
-									<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='val["m3"]'/></div>
-									<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='val["m_total"]'/></div>
+										<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='"{:,}".format(round(round(val["m1"],2))'/></div>
+										<div style="width:36mm;text-align:center;padding-top:6.5px;"><t t-esc='"{:,}".format(round(val["m2"],2))'/></div>
+										<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='"{:,}".format(round(val["m3"],2))'/></div>
+										<div style="width:35.5mm;text-align:center;padding-top:6.5px;"><t t-esc='"{:,}".format(round(val["m_total"],2))'/></div>
 
-									<div style="width:45mm;text-align:center;padding-top:6.5px;"><t t-esc='val["taxed"]'/></div>
+										<div style="width:45mm;text-align:center;padding-top:6.5px;"><t t-esc='"{:,}".format(round(val["taxed"],2))'/></div>
 
-								</div>
-								<!-- <div style="width:45mm;text-align:center;padding-top:6.5px;"><t t-esc='processed'/></div> -->
-							</t>
-						</div>
+									</div>
+									<!-- <div style="width:45mm;text-align:center;padding-top:6.5px;"><t t-esc='processed'/></div> -->
+								</t>
+							</div>
+						</t>
 					</div>
 				</div>
 			</t>

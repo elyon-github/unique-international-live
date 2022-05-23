@@ -46,22 +46,24 @@
 						<div class="left" style="position: absolute; top:130px; left:380px; letter-spacing:11px; font-size:23px;width:600px;"><t t-esc="vat[3]"/>0</div>
 
 						<div class="left" style="position: absolute; top:185px; left:75px;"><t t-esc="payor.name"/></div>
-						<div class="left" style="position: absolute; top:230px; left:75px;"><small><t t-esc="payor.city"/></small></div>
+						<div class="left" style="position: absolute; top:230px; left:75px;"><small><t t-esc="payor.contact_address_complete"/></small></div>
 						<div class="right" style="position: absolute; top:230px; left: 976px; letter-spacing: 13px; font-size: 21px" ><t t-esc="payor.zip"/></div>
 							
 					</div>
 
-					<div class="container" style="padding-top:121mm;font-size:15px;padding-left:50px;width:100%; position: absolute;">
-						<t t-foreach='data' t-as='val'>
-							<div class="row" style="padding-bottom:3px;">
-								<div class="left" style="width:460px;"><t t-esc="val[3]"/></div>
-								<div class="left" style="width:100px;"><t t-esc="val[2]"/></div>
-								<div class="left" style="width:200px;"><t t-esc="val[1]"/></div>
-								<div class="left" style="width:50px;"><t t-esc="val[4]"/></div>
-								<div class="left" style="width:200px;"><t t-esc="val[0]"/></div>
-							</div>
-						</t>
-					</div>
+					<t t-if='len(data) > 0'>
+						<div class="container" style="padding-top:121mm;font-size:15px;padding-left:50px;width:100%; position: absolute;">
+							<t t-foreach='data' t-as='val'>
+								<div class="row" style="padding-bottom:3px;">
+									<div class="left" style="width:460px;"><t t-esc="val[3]"/></div>
+									<div class="left" style="width:100px;"><t t-esc="val[2]"/></div>
+									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(round(val[1],2))"/></div>
+									<div class="left" style="width:50px;"><t t-esc="val[4]"/></div>
+									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(round(val[0],2))"/></div>
+								</div>
+							</t>
+						</div>
+					</t>
 				</div>
 			</div>
 		</t>
