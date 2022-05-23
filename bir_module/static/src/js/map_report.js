@@ -21,6 +21,8 @@ var MAPReport = AbstractAction.extend({
             args: ['', current],
         }).then(function(data){
         	$("#map_table").html(construct_sawt(data));
+            $('#sawt_datatable').DataTable();
+            $('.dataTables_length').addClass('bs-select');
         });
     },
 
@@ -35,6 +37,8 @@ var MAPReport = AbstractAction.extend({
                     args: ['', current],
                 }).then(function(data){
                     $("#map_table").html(construct_sawt(data));
+                    $('#sawt_datatable').DataTable();
+                    $('.dataTables_length').addClass('bs-select');
                 });
             }
         },

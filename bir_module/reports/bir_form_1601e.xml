@@ -57,9 +57,9 @@
 								<div class="row" style="padding-bottom:3px;">
 									<div class="left" style="width:460px;"><t t-esc="val[3]"/></div>
 									<div class="left" style="width:100px;"><t t-esc="val[2]"/></div>
-									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(round(val[1],2))"/></div>
+									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(val[1],2))"/></div>
 									<div class="left" style="width:50px;"><t t-esc="val[4]"/></div>
-									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(round(val[0],2))"/></div>
+									<div class="left" style="width:200px;"><t t-esc="'{:,}'.format(round(val[0],2))"/></div>
 								</div>
 							</t>
 						</div>

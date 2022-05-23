@@ -21,7 +21,8 @@ var SLSReport = AbstractAction.extend({
             args: ['', current, 'out_invoice'],
         }).then(function(data){
             $("#sls_table").html(construct_sls(data));
-            // alert(data)
+            $('#sls_datatable').DataTable();
+            $('.dataTables_length').addClass('bs-select');
         });
 	},
 
@@ -36,6 +37,8 @@ var SLSReport = AbstractAction.extend({
                     args: ['', current, 'out_invoice'],
                 }).then(function(data){
                     $("#sls_table").html(construct_sls(data));
+                    $('#sls_datatable').DataTable();
+                    $('.dataTables_length').addClass('bs-select');
                 });
             }
         },

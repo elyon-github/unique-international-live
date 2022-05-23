@@ -21,6 +21,8 @@ var SLPReport = AbstractAction.extend({
             args: ['', current, 'in_invoice'],
         }).then(function(data){
         	$("#slp_table").html(construct_slp(data));
+            $('#slp_datatable').DataTable();
+            $('.dataTables_length').addClass('bs-select');
         });
 	},
 
@@ -35,6 +37,8 @@ var SLPReport = AbstractAction.extend({
                     args: ['', current, 'in_invoice'],
                 }).then(function(data){
                     $("#slp_table").html(construct_slp(data));
+                    $('#slp_datatable').DataTable();
+                    $('.dataTables_length').addClass('bs-select');
                 });
             }
         },

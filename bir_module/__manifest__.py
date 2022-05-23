@@ -50,6 +50,8 @@
             '/bir_module/static/src/js/BIR_forms.js',
             '/bir_module/static/src/js/sls_report.js',
             '/bir_module/static/src/js/slp_report.js',
+            'https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css',
+            'https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js'
         ], 
         'web.assets_qweb': [
             "/bir_module/static/src/xml/reports_body.xml",

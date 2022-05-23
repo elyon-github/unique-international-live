@@ -21,6 +21,8 @@ var SAWTReport = AbstractAction.extend({
             args: ['', current],
         }).then(function(data){
         	$("#sawt_table").html(construct_sawt(data));
+            $('#sawt_datatable').DataTable();
+            $('.dataTables_length').addClass('bs-select');
         });
 	},
 
@@ -35,6 +37,8 @@ var SAWTReport = AbstractAction.extend({
                     args: ['', current],
                 }).then(function(data){
                     $("#sawt_table").html(construct_sawt(data));
+                    $('#sawt_datatable').DataTable();
+                    $('.dataTables_length').addClass('bs-select');
                 });
             }
         },

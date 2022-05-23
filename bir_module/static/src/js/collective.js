@@ -12,7 +12,7 @@ function get_current(){
 
 
 function construct_sawt(data){
-	var html = "<table class='table table-striped table-hover'><thead><tr>";
+	var html = "<table class='table table-striped table-hover' id='sawt_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Number</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -46,7 +46,8 @@ function construct_sawt(data){
 	}
 
 	html += "<tr>\
-		<th scope='row'></td>\<td></td><td></td><td></td>\
+		<th scope='row'>" + num+1 + "</td>\
+		<td></td><td></td><td></td>\
 		<td scope='row'>" + numberWithCommas(sub) + "</td>\
 		<td></td>\
 		<td scope='row'>" + numberWithCommas(tax) + "</td>\
@@ -68,7 +69,7 @@ function construct_partners(data){
 }
 
 function construct_slp(data){
-	var html = "<table class='table table-striped table-hover'><thead><tr>";
+	var html = "<table class='table table-striped table-hover' id='slp_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Taxable Month</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -81,7 +82,7 @@ function construct_slp(data){
 		<th scope='col'>Purchase of Capital goods</th>\
 		<th scope='col'>Purchase of Goods other than Capital Goods</th>\
 		<th scope='col'>VAT</th>\
-		<th scope='col'>Gross Taxation</th>";
+		<th scope='col'>Gross Taxation</th></tr></thead><tbody>";
 
 	var gross_sales_po_tot = 0;
 	var excempt_tot = 0;
@@ -100,7 +101,7 @@ function construct_slp(data){
 		html += "<tr>";
 		html += "<th scope='row'></td>\
 			<td>" + format_vat(x.vat) + "</td>\
-			<td>" + numberWithCommas(x.name) + "</td>\
+			<td>" + x.name + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
 			<td>" + numberWithCommas(x.zero_rated) + "</td>\
@@ -143,7 +144,7 @@ function construct_slp(data){
 }
 
 function construct_sls(data){
-	var html = "<table class='table table-striped table-hover'><thead><tr>";
+	var html = "<table class='table table-striped table-hover' id='sls_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Taxable Month</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -153,7 +154,7 @@ function construct_sls(data){
 		<th scope='col'>Zero-rated Purchase</th>\
 		<th scope='col'>Taxable Purchase</th>\
 		<th scope='col'>VAT</th>\
-		<th scope='col'>Gross Taxation</th>";
+		<th scope='col'>Gross Taxation</th></tr></thead><tbody>";
 
 	var gross_sales_po_tot = 0;
 	var excempt_tot = 0;
@@ -168,7 +169,7 @@ function construct_sls(data){
 		html += "<tr>";
 		html += "<th scope='row'></td>\
 			<td>" + format_vat(x.vat) + "</td>\
-			<td>" + numberWithCommas(x.name) + "</td>\
+			<td>" + x.name + "</td>\
 			<td>" + numberWithCommas(x.gross_sales_po) + "</td>\
 			<td>" + numberWithCommas(x.exempt) + "</td>\
 			<td>" + numberWithCommas(x.zero_rated) + "</td>\
