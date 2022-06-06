@@ -39,7 +39,7 @@ var _2307Form = AbstractAction.extend({
             this._rpc({
                 model: 'account.move',
                 method: 'x_2307_forms',
-                args: ['', {'month': current, 'id': BP, 'trigger': 'print'}],
+                args: ['', {'month': current, 'id': BP, 'trigger': 'print', 'tranid': 'none'}],
             }).then(function(data){
                 self.do_action(data);
             });
@@ -50,7 +50,7 @@ var _2307Form = AbstractAction.extend({
             var BP = this.$("#_2307_partner").find(":selected").val();
 
             if(e.which == 13){
-                var url = "/report/pdf/bir_module.form_2307/?id="+BP+"&month="+current+"&trigger=view";
+                var url = "/report/pdf/bir_module.form_2307/?id="+BP+"&month="+current+"&trigger=view&tranid=none";
                 $("#2307_preview").attr("src", url);
             }
         },
@@ -59,7 +59,7 @@ var _2307Form = AbstractAction.extend({
             var current = this.$("#_2307_month").val()
             var BP = this.$("#_2307_partner").find(":selected").val();
 
-            var url = "/report/pdf/bir_module.form_2307/?id="+BP+"&month="+current+"&trigger=view";
+            var url = "/report/pdf/bir_module.form_2307/?id="+BP+"&month="+current+"&trigger=view&tranid=none";
             $("#2307_preview").attr("src", url);
         },
     },
@@ -90,14 +90,13 @@ var _2550MForm = AbstractAction.extend({
         var current = get_current();
         this.$("#_2550M_month").val(current);
 
-        var url = "/report/pdf/bir_module.form_2550M?month="+current+"&trans=2550M&trigger=view";
+        var url = "/report/pdf/bir_module.form_2550M?month="+current+"&trans=2550M&trigger=view&tranid=none";
         this.$("#2550M_preview").attr("src", url);
     },
 
     events: {
         "click #print_2550M": function(){
             var current = this.$("#_2550M_month").val()
-
             var self = this;
 
             this._rpc({
@@ -113,7 +112,7 @@ var _2550MForm = AbstractAction.extend({
             if(e.which == 13){
                 var current = this.$("#_2550M_month").val()
 
-                var url = "/report/pdf/bir_module.form_2550M?month="+current+"&trans=2550M&trigger=view";
+                var url = "/report/pdf/bir_module.form_2550M?month="+current+"&trans=2550M&trigger=view&tranid=none";
                 this.$("#2550M_preview").attr("src", url);
             }
         },
@@ -145,7 +144,7 @@ var _2500QForm = AbstractAction.extend({
         var current = get_current();
         this.$("#_2550Q_month").val(current);
 
-        var url = "/report/pdf/bir_module.form_2550Q?month="+current+"&trans=2550Q&trigger=view";
+        var url = "/report/pdf/bir_module.form_2550Q?month="+current+"&trans=2550Q&trigger=view&tranid=none";
         this.$("#2550Q_preview").attr("src", url);
     },
 
@@ -168,7 +167,7 @@ var _2500QForm = AbstractAction.extend({
             if(e.which == 13){
                 var current = this.$("#_2550Q_month").val()
 
-                var url = "/report/pdf/bir_module.form_2550Q?month="+current+"&trans=2550Q&trigger=view";
+                var url = "/report/pdf/bir_module.form_2550Q?month="+current+"&trans=2550Q&trigger=view&tranid=none";
                 this.$("#2550Q_preview").attr("src", url);
             }
         },

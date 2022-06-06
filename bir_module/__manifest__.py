@@ -30,6 +30,7 @@
         'reports/bir_form_2550M.xml',
         'reports/bir_form_2550Q.xml',
         'reports/bir_form_2307.xml',
+        'reports/bir_form_2307_preview.xml',
         'reports/bir_form_1601e.xml',
         'reports/paper_format.xml',
         # 'reports/bir_form_2550M.xml',
@@ -50,8 +51,11 @@
             '/bir_module/static/src/js/BIR_forms.js',
             '/bir_module/static/src/js/sls_report.js',
             '/bir_module/static/src/js/slp_report.js',
+            '/bir_module/static/src/css/style.css',
             'https://cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css',
-            'https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js'
+            'https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js',
+            'https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css',
+            '/bir_module/static/src/js/print_history.js',
         ], 
         'web.assets_qweb': [
             "/bir_module/static/src/xml/reports_body.xml",

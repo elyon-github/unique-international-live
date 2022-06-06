@@ -4,7 +4,11 @@ from odoo import models, fields, api
 from datetime import datetime
 import calendar
 import psycopg2
+import os
+from pathlib import Path
+from winreg import *
 import xlwt
+import csv
 
 
 class bir_module(models.Model):
@@ -12,7 +16,9 @@ class bir_module(models.Model):
     _description = 'bir_module.print_history'
 
     form_type = fields.Char(string='BIR Form Type')
+    report_type = fields.Char()
     print_date = fields.Char()
+    quarter_scope = fields.Char()
 
 class print_history_line(models.Model):
     _name = 'bir_module.print_history_line'
@@ -49,48 +55,71 @@ class bir_reports(models.Model):
     def test(self):
         pass
 
+##############################################################################################################################################################################
+################################################################ 2307 ########################################################################################################
+##############################################################################################################################################################################
+
     def x_2307_forms(self, args):
-        return self.env.ref('bir_module.2307_report_action_id_multi').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'id': args['id'], 'trigger': args['trigger']})
+        return self.env.ref('bir_module.2307_report_action_id_multi').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'id': args['id'], 'trigger': args['trigger'], 'tranid': args['tranid']})
 
-    def x_get_2307_data(self, kwargs):
+    def x_get_2307_data(self, args):
         data = []
-        transactional = self._2307_query(kwargs)
-        # landed_cost = self._2307_landed_cost_query(kwargs)
 
-        data.append(transactional)
-        # data.append(landed_cost)
+        if args[2] == 'reprint':
+            transactional = self._2307_query_reprint(args)
+            data.append(transactional)
+        else:
+            transactional = self._2307_query_normal(args)
+            data.append(transactional)
+
+        if args[2] == 'print':
+            self.record_bir_form_print(data[0], '2307', args[3], args[0][1])
 
         return data
-
-    def _2307_query(self, args):
+        
+    def _2307_query_reprint(self, args):
         query = """ SELECT Abs(T1.price_total)*(Abs(T3.amount)/100), T1.price_total, T5.name, T5.vat, T4.name, T3.name,
-            T0.id, T0.move_type {2} 
-            FROM account_move T0 
-            JOIN account_move_line T1 ON T0.id = T1.move_id AND (T1.is_landed_costs_line = 'false' OR T1.is_landed_costs_line IS NULL) 
+            T0.id, T0.move_type, T0.invoice_date, T5.id  
+            FROM bir_module_print_history_line T6 
+            JOIN account_move T0 ON T0.id = T6.move_id  
+            JOIN account_move_line T1 ON T0.id = T1.move_id  
             JOIN account_move_line_account_tax_rel T2 ON T1.id = T2.account_move_line_id 
             JOIN account_tax T3 ON T2.account_tax_id = T3.id 
             JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
             JOIN res_partner T5 ON T0.partner_id = T5.id 
-            LEFT JOIN bir_module_print_history_line T6 ON T6.move_id = T0.id AND T6.form_type = '2307' 
-            WHERE T0.company_id = {0} AND T0.move_type = 'in_invoice' {1}"""
+            WHERE T0.state='posted' AND T6.print_id = '{0}'"""
+        
+        self._cr.execute(query.format(args[4]))
+        val = self._cr.fetchall()
+
+        return val
+
+    def _2307_query_normal(self, args):
+        query = """ SELECT Abs(T1.price_total)*(Abs(T3.amount)/100), T1.price_total, T5.name, T5.vat, T4.name, T3.name,
+            T0.id, T0.move_type {2} 
+            FROM account_move T0 
+            JOIN account_move_line T1 ON T0.id = T1.move_id  
+            JOIN account_move_line_account_tax_rel T2 ON T1.id = T2.account_move_line_id 
+            JOIN account_tax T3 ON T2.account_tax_id = T3.id 
+            JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
+            JOIN res_partner T5 ON T0.partner_id = T5.id 
+            {3} 
+            WHERE T0.state='posted' AND T0.company_id = {0} AND T0.move_type = 'in_invoice' {1}""" 
 
         end_parameter = self._2307_params(trans = args[1], id = args[0])
 
-        self._cr.execute(query.format(self.env.company.id, end_parameter[0], end_parameter[1]))
+        self._cr.execute(query.format(self.env.company.id, end_parameter[0], end_parameter[1], end_parameter[2]))
         val = self._cr.fetchall()
-
-        if args[2] == 'print':
-            self.record_bir_form_print(val, '2307')
 
         return val
 
     def _2307_params(self, **kwargs):
         param = ""
         field = ""
-        # group = ""
+        join = ""
         
         if kwargs['trans'] == "transactional":
-            param = " AND T0.id = " + str(kwargs['id'])
+            param = " AND T0.id = " + str(kwargs['id'][0])
         else:
             parameter = kwargs['id'][1].replace("-", " ").split()
             span = self.check_quarter_2307(int(parameter[1]))
@@ -99,9 +128,9 @@ class bir_reports(models.Model):
             param += self.sawt_map_params(span, parameter[0])
 
             field = ", T0.invoice_date, T6.id "
-            # group = ", T0.invoice_date"
+            join = "LEFT JOIN bir_module_print_history_line T6 ON T6.move_id = T0.id AND T6.form_type = '2307'"
 
-        return [param, field]
+        return [param, field, join]
 
     def process_2307_quarterly(self, data):
         cont = []
@@ -168,38 +197,59 @@ class bir_reports(models.Model):
             final.append(dict)
 
         return final
+    
+##############################################################################################################################################################################
+################################################################ 2550M & 2550Q ###############################################################################################
+##############################################################################################################################################################################
 
-    # def x_process_landed_cost_many(self, data):
-    #     base_set = []
-    #     new_val = []
-    #     for x in data:
-    #         base_set.append(x[2])
-
-    #     for set_val in set(base_set):
-    #         new_val.append([set_val, []])
-
-    #     for dict_val in new_val:
-    #         for base in data:
-    #             if dict_val[0] == base[2]:
-    #                 dict_val[1].append(base)
-    #                 dict_val.append([base[3], base[4], base[5], base[6]])
-
-    #     return new_val
+    def x_2550_print_action(self, args):
+        if args['trans'] == '2550M':
+            return self.env.ref('bir_module.bir_form_2550M').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none'})
+        else:
+            return self.env.ref('bir_module.bir_form_2550Q').report_action(self,data={'name':'BIR Form 2550Q', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none'})
 
     def x_2550_forms(self, args):
+        val = []
+        
+        if args[2] == 'reprint':
+            val = self.fetch_2550_data_reprint(args)
+        else:
+            val = self.fetch_2550_data_normal(args)
+        
+        if args[2] == 'print':
+            self.record_bir_form_print(val, '2550', args[3], args[0])
+
+        processed = self.x_2550_process_data(val)
+        return processed
+    
+    def fetch_2550_data_reprint(self, args):
+        query = """SELECT T1.move_type, T2.price_total, T2.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T1.id, T1.move_type  
+            FROM bir_module_print_history_line T0 
+            JOIN account_move T1 ON T1.id = T0.move_id 
+            JOIN account_move_line T2 ON T1.id = T2.move_id AND T2.exclude_from_invoice_tab = 'true' 
+            JOIN account_tax T3 ON T3.id = T2.tax_line_id AND T3.amount >= 0 
+            JOIN res_partner T4 ON T4.id = T1.partner_id 
+            LEFT JOIN res_partner_industry T5 ON T5.id = T4.industry_id 
+            WHERE T1.state='posted' AND T0.print_id = {0}"""
+
+        self._cr.execute(query.format(args[4]))
+        val = self._cr.fetchall()
+
+        return val
+
+    def fetch_2550_data_normal(self, args):
         param = args[0].replace("-", " ").split()
         #                   AR or AP    TAX total per line  line total      tax Name    tax Amount       ven/cust name  industry    has landed cost?
         #                   0           1               2                   3           4           5           6       7       8       9
-        query = """ SELECT T0.move_type, T1.price_total, T1.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T0.id, T0.move_type, T2.id
+        query = """ SELECT T0.move_type, T1.price_total, T1.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T0.id, T0.move_type {3}
             FROM account_move T0 
             JOIN account_move_line T1 ON T0.id = T1.move_id AND T1.exclude_from_invoice_tab = 'true' 
-            LEFT JOIN bir_module_print_history_line T2 ON T2.move_id = T0.id AND T2.form_type = '2550' 
+            {2}
             JOIN account_tax T3 ON T3.id = T1.tax_line_id AND T3.amount >= 0 
             JOIN res_partner T4 ON T4.id = T0.partner_id 
             LEFT JOIN res_partner_industry T5 ON T5.id = T4.industry_id 
             LEFT JOIN stock_landed_cost T6 ON T0.id = T6.vendor_bill_id 
-            LEFT JOIN bir_module_print_history T7 ON T7.id = T2.print_id
-            WHERE T0.company_id = {0} AND {1}"""
+            WHERE T0.state='posted' AND T0.company_id = {0} AND {1}"""
 
         quarter = {'month': param[1], 'year': param[0], 'trans': 'month'}
         if args[1] == '2550Q':
@@ -207,15 +257,10 @@ class bir_reports(models.Model):
 
         end_param = self.x_2550_param(quarter)
 
-        self._cr.execute(query.format(self.env.company.id, end_param))
+        self._cr.execute(query.format(self.env.company.id, end_param[0], end_param[1], end_param[2]))
         val = self._cr.fetchall()
 
-        # return self.x_2550_process_data(val)
-        if args[2] == 'print':
-            self.record_bir_form_print(val, '2550')
-
-        processed = self.x_2550_process_data(val)
-        return processed
+        return val
 
     def x_2550_process_data(self, data):
         sales = {'12A': 0, '12B': 0, '13A': 0, '13B': 0, '14': 0, '15': 0, '16A': 0, '16B': 0}
@@ -276,15 +321,10 @@ class bir_reports(models.Model):
 
         return value
 
-
-    def x_2550_print_action(self, args):
-        if args['trans'] == '2550M':
-            return self.env.ref('bir_module.bir_form_2550M').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger']})
-        else:
-            return self.env.ref('bir_module.bir_form_2550Q').report_action(self,data={'name':'BIR Form 2550Q', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger']})
-
     def x_2550_param(self, data):
         query = ""
+        join = ""
+        select = ""
 
         if(data['trans']) == 'month':
             init = "{0} = EXTRACT(MONTH FROM T0.date) AND {1} = EXTRACT(YEAR FROM T0.date)"
@@ -293,7 +333,10 @@ class bir_reports(models.Model):
             init = "EXTRACT(MONTH FROM T0.date) >= {0} AND EXTRACT(MONTH FROM T0.date) <= {1} AND EXTRACT(YEAR FROM T0.date) = {2} AND T2.id IS NULL"
             query = init.format(data['month'][0], data['month'][1], data['year'])
 
-        return query
+            join = "LEFT JOIN bir_module_print_history_line T2 ON T2.move_id = T0.id AND T2.form_type = '2550' "
+            select = ", T2.id"
+
+        return query, join, select
     
 
 ##############################################################################################################################################################################
@@ -309,7 +352,7 @@ class bir_reports(models.Model):
             JOIN account_tax T3 ON T3.id = T1.tax_line_id 
             JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
             JOIN res_partner T5 ON T5.id = T0.partner_id AND T5.vat IS NOT NULL
-            WHERE T0.company_id = {0} AND T0.move_type = 'out_invoice' AND {1} GROUP BY T5.vat, T4.name, T3.amount"""
+            WHERE T0.state='posted' AND T0.company_id = {0} AND T0.move_type = 'out_invoice' AND {1} GROUP BY T5.vat, T4.name, T3.amount"""
 
         quarter_iden = self.check_quarter(int(param[1]))
         end_parameter = self.sawt_map_params(quarter_iden, int(param[0]))
@@ -329,7 +372,7 @@ class bir_reports(models.Model):
             JOIN account_tax T3 ON T3.id = T1.tax_line_id 
             JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
             JOIN res_partner T5 ON T5.id = T0.partner_id AND T5.vat IS NOT NULL
-            WHERE T0.company_id = {0} AND T0.move_type = 'in_invoice' AND {1} GROUP BY T5.vat, T4.name, T3.amount"""
+            WHERE T0.state='posted' AND T0.company_id = {0} AND T0.move_type = 'in_invoice' AND {1} GROUP BY T5.vat, T4.name, T3.amount"""
 
         quarter_iden = self.check_quarter(int(param[1]))
         end_parameter = self.sawt_map_params(quarter_iden, int(param[0]))
@@ -408,10 +451,54 @@ class bir_reports(models.Model):
 
                 ctr += 1
                 seq += 1
+            
+            if os.path.exists("C:/Odoo BIR Export/"):
+                wb.save("C:/Odoo BIR Export/" + fname)
+            else:
+                os.makedirs("C:/Odoo BIR Export/")
+                wb.save("C:/Odoo BIR Export/" + fname)
 
-            wb.save("C:/Users/asus/Downloads/" + fname)
+            # return Path.home()
         except Exception as ex:
             return str(ex)
+
+    def export_sawt_map_csv(self, month, report):
+        name = ["BIR Form 1702"]
+        header = ["Seq Number", "Taxpayer Identification Number", "Corporation (Registered Name)", "ATC Code", "Amount of Income Payment", "Tax Rate", "Amount of Tax Withheld"]
+        number = ["1", "2", "3", "4", "5", "6", "7"]
+        tin = ["TIN:"+str(self.env.company.vat)]
+        company = ["Payee's Name:"+str(self.env.company.name)]
+        data = []
+        title = []
+        fname = []
+        vals = []
+
+        if report == 'sawt':
+            data = self.SAWT_report(month) # Fetch data 
+            title = ["SUMMARY ALPHALIST OF WITHHOLDING TAXES"]
+            fname = "SAWT report.csv"
+        else:
+            data = self.MAP_report(month) # Fetch data 
+            title = ["Monthly Alphalist of Payees"]
+            fname = "MAP report.csv"
+
+        seq = 1
+        for val in data:
+            vals.append([seq, val[2], val[3], val[4], val[1], val[5], val[0]])
+            seq += 1
+
+        if os.path.exists("C:/Odoo BIR Export/") == False:
+            os.makedirs("C:/Odoo BIR Export/")
+
+        with open('C:/Odoo BIR Export/'+fname, 'w') as f: 
+            write = csv.writer(f) 
+            write.writerow(name) #Form Name
+            write.writerow(title) #TITLE
+            write.writerow(tin) #TIN
+            write.writerow(company) #COMPANY NAME
+            write.writerow(header) #HEADER
+            write.writerow(number) #COL NUMBER
+            write.writerows(vals) 
 
 ##############################################################################################################################################################################
 ################################################################ SLS AND SLP #################################################################################################
@@ -423,14 +510,14 @@ class bir_reports(models.Model):
         quarter_iden = self.check_quarter(int(param[1]))
         end_parameter = self.sawt_map_params(quarter_iden, int(param[0]))
 
-        contacts = self.get_contacts(quarter_iden, end_parameter, trans)
-        numbers = self.get_numbers(quarter_iden, end_parameter, trans)
+        contacts = self.get_contacts(end_parameter, trans)
+        numbers = self.get_numbers(end_parameter, trans)
 
         vals = self.get_sls_slp_values(contacts, numbers)
 
         return vals
 
-    def get_contacts(self, quarter_iden, end_parameter, trans):
+    def get_contacts(self, end_parameter, trans):
         query = """ SELECT DISTINCT(T1.vat), T1.name
             FROM account_move T0 
             JOIN res_partner T1 ON T1.id = T0.partner_id 
@@ -441,7 +528,7 @@ class bir_reports(models.Model):
 
         return val
 
-    def get_numbers(self, quarter_iden, end_parameter, trans):
+    def get_numbers(self, end_parameter, trans):
 
         query = """ SELECT
             T4.vat as vat_name, T4.name as company_name, T0.name, T3.amount, T5.name, T3.tax_scope,
@@ -509,13 +596,92 @@ class bir_reports(models.Model):
             JOIN account_move_line T1 ON T0.id = T1.move_id AND T1.exclude_from_invoice_tab = 'true' 
             JOIN account_tax T3 ON T3.id = T1.tax_line_id 
             JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
-            WHERE T0.company_id = {0} AND T0.move_type = 'out_invoice' AND EXTRACT(MONTH FROM T0.date) = {1} AND EXTRACT(YEAR FROM T0.date) = {2} GROUP BY T4.name, T4.description"""
+            WHERE T0.state='posted' AND T0.company_id = {0} AND T0.move_type = 'out_invoice' AND EXTRACT(MONTH FROM T0.date) = {1} AND EXTRACT(YEAR FROM T0.date) = {2} GROUP BY T4.name, T4.description"""
 
         self._cr.execute(query.format(self.env.company.id, param[1], param[0]))
         val = self._cr.fetchall()
 
         return val
 
+##############################################################################################################################################################################
+################################################################ PRINT HISTORY  ##############################################################################################
+##############################################################################################################################################################################
+
+    def fetch_print_types(self):
+        query = "SELECT DISTINCT report_type FROM bir_module_print_history"
+
+        self._cr.execute(query)
+        val = self._cr.fetchall()
+
+        return val
+    
+    def fetch_print_history(self, type):
+        const = ""
+        query = """SELECT T0.id, T0.report_type, T0.print_date, T2.name 
+            FROM bir_module_print_history T0 
+            JOIN res_users T1 ON T1.id = T0.create_uid 
+            JOIN res_partner T2 ON T2.id = T1.partner_id 
+            {0}"""
+        
+        if str(type) != 'all':
+            const = "WHERE T0.report_type = '"+str(type)+"'"
+        
+        self._cr.execute(query.format(const))
+        val = self._cr.fetchall()
+
+        return val
+    
+    def fetch_print_history_details(self, id):
+        query = """SELECT move_id, T1.name, scope 
+            FROM bir_module_print_history_line T0 
+            JOIN account_move T1 ON T1.id = T0.move_id 
+            WHERE T0.print_id = {0}"""
+        
+        self._cr.execute(query.format(id))
+        val = self._cr.fetchall()
+
+        return val
+    
+    def record_bir_form_print(self, arr, process, report_type, coverage):
+        data = self.process_array(arr, process)
+        
+        header_query = ""
+        header_query = "INSERT INTO bir_module_print_history (form_type, report_type, create_uid, print_date, quarter_scope, create_date) VALUES('{0}', '{3}', '{1}', '{2}', '{4}', current_timestamp) RETURNING id"
+
+        if len(data) > 0:
+            self._cr.execute(header_query.format(data[0][1], data[0][2], data[0][3], report_type, coverage))
+            print_id = self._cr.fetchone()[0]
+
+        for val in data:
+            base_query = "INSERT INTO bir_module_print_history_line (print_id, move_id, scope, form_type, create_uid, create_date) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', current_timestamp)"
+
+            self._cr.execute(base_query.format(print_id, val[0], val[4], val[1], val[2]))
+
+    def process_array(self, arr, process):
+        data = []
+        curr_datetime = datetime.today().strftime("%d/%m/%Y")
+        if process == '2550':
+            for val in arr:
+                data.append([val[8],'2550', self._uid, curr_datetime, val[9]])
+        elif process == '2307':
+            temp = []
+            set_temp = {}
+            for val in arr:
+                temp.append(val[6])
+                set_temp = set(temp)
+
+            for ids in list(set_temp):
+                data.append([ids, '2307', self._uid, curr_datetime, arr[0][7]])
+
+        return data
+    
+    def get_reprint_trans(self, id):
+        query = "SELECT report_type, quarter_scope FROM bir_module_print_history WHERE id = '{0}'"
+
+        self._cr.execute(query.format(id))
+        val = self._cr.fetchone()
+
+        return val
 
 ##############################################################################################################################################################################
 ################################################################ GENERAL FUNCTIONS  ##########################################################################################
@@ -567,7 +733,7 @@ class bir_reports(models.Model):
         return quarter
 
     def fetch_BP(self):
-        query = """ SELECT id, name FROM res_partner WHERE is_company = 'true' AND vat IS NOT NULL """
+        query = """ SELECT id, name FROM res_partner WHERE is_company = 'true' AND vat IS NOT NULL AND supplier_rank > 0"""
 
         self._cr.execute(query)
         val = self._cr.fetchall()
@@ -644,29 +810,3 @@ class bir_reports(models.Model):
     def x_fetch_company_id(self):
         return self.env.company.id
 
-    def record_bir_form_print(self, arr, process):
-        data = self.process_array(arr, process)
-        
-        header_query = ""
-        header_query = "INSERT INTO bir_module_print_history (form_type, create_uid, print_date, create_date) VALUES('{0}','{1}', '{2}', current_timestamp) RETURNING id"
-
-        if len(data) > 0:
-            self._cr.execute(header_query.format(data[0][1],data[0][2],data[0][3]))
-            print_id = self._cr.fetchone()[0]
-
-        for val in data:
-            base_query = "INSERT INTO bir_module_print_history_line (print_id, move_id, scope, form_type, create_uid, create_date) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', current_timestamp)"
-
-            self._cr.execute(base_query.format(print_id, val[0], val[4], val[1], val[2]))
-
-    def process_array(self, arr, process):
-        data = []
-        curr_datetime = datetime.today().strftime("%d/%m/%Y")
-        if process == '2550':
-            for val in arr:
-                data.append([val[8],'2550', self._uid, curr_datetime, val[9]])
-        elif process == '2307':
-            for val in arr:
-                data.append([val[6], '2307', self._uid, curr_datetime, val[7]])
-
-        return data

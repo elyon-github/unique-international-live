@@ -12,7 +12,7 @@ function get_current(){
 
 
 function construct_sawt(data){
-	var html = "<table class='table table-striped table-hover' id='sawt_datatable'><thead><tr>";
+	var html = "<table class='table table-striped table-hover dt-responsive nowrap' id='sawt_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Number</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -69,7 +69,7 @@ function construct_partners(data){
 }
 
 function construct_slp(data){
-	var html = "<table class='table table-striped table-hover' id='slp_datatable'><thead><tr>";
+	var html = "<table class='table table-striped table-hover dt-responsive nowrap' id='slp_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Taxable Month</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -144,7 +144,7 @@ function construct_slp(data){
 }
 
 function construct_sls(data){
-	var html = "<table class='table table-striped table-hover' id='sls_datatable'><thead><tr>";
+	var html = "<table class='table table-striped table-hover dt-responsive nowrap' id='sls_datatable'><thead><tr>";
 
 	html += "<th scope='col'>Taxable Month</th>\
 		<th scope='col'>Taxpayer Identification Number</th>\
@@ -219,4 +219,62 @@ function format_vat(x){
 		str = x.slice(0,3) + "-" + x.slice(3,6) + "-" + x.slice(6) + "-000";
 	}
 	return str;
+}
+
+function construct_print_types(data){
+	var html = "<option value='all'>All</option>";
+
+	for(let x in data){
+		html += "<option value='" + data[x][0] + "'>" + data[x][0] + "</option>";
+	}
+
+	return html;
+}
+
+function construct_print_history(data){
+	html = "<table class='table table-striped table-hover dt-responsive nowrap' id='print_history_datatable'><thead><tr>";
+
+	html += "<th scope='col'>id</th>\
+		<th scope='col'>Form Type</th>\
+		<th scope='col'>Print Date</th>\
+		<th scope='col'>Responsible</th>\
+		<th>Action</th></tr></thead><tbody>";
+
+	for(let y in data){
+		// x = JSON.parse(JSON.stringify(data[y]));
+
+		html += "<tr><td class='print_id_val'>"+data[y][0]+"</td>\
+			<td>"+data[y][1]+"</td>\
+			<td>"+data[y][2]+"</td>\
+			<td>"+data[y][3]+"</td>\
+			<td>\
+			<button class='btn btn-success print_details_btn' value='"+data[y][0]+"' data-toggle='modal' data-target='#print_details_modal'>Details</button>\
+			<button class='btn btn-success preview_details_btn' value='"+data[y][0]+"' data-toggle='modal' data-target='#print_preview_modal'>Preview</button>\
+			</td></tr>";
+	}
+
+	html += "</tbody></table>";
+
+	return html;
+}
+
+function construct_print_details(data) {
+	html = "<table class='table table-striped table-hover dt-responsive nowrap' id='print_history_line_datatable'><thead><tr>";
+
+	html += "<th scope='col'>Invoice/Bill Code</th>\
+		<th scope='col'>Type</th>\
+		</tr></thead><tbody>";
+
+	for(let y in data){
+		scope = "Vendor Bill";
+		if(data[y][2] == 'out_invoice'){
+			scope = "Customer Invoice";
+		}
+		html += "<tr>\
+			<td>"+data[y][1]+"</td>\
+			<td>"+scope+"</td></tr>"
+	}
+	html += "</tbody></table>";
+
+	return html
 }

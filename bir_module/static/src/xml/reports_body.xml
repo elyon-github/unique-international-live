@@ -7,9 +7,10 @@
         	<div class="row">
 	        	<div class="col-md-2">
 	        		<input type="button" id="export_sawt" value="Export xlsx" class="btn btn-success"/>
+                    <input type="button" id="export_sawt_csv" value="Export csv" class="btn btn-success"/>
 	        	</div>
 	        	<div class="col-md-2">
-	                <input type="month" id="sawt_param" class="sawt_param"/>
+	                <input type="month" id="sawt_param" class="sawt_param monthpicker"/>
 	        	</div>
         	</div>
         	<div id="sawt_table" class="sawt_table"></div>
@@ -22,6 +23,7 @@
         	<div class="row">
         		<div class="col-md-2">
 	        		<input type="button" id="export_map" value="Export xlsx" class="btn btn-success"/>
+                    <input type="button" id="export_map_csv" value="Export csv" class="btn btn-success"/>
 	        	</div>
 	        	<div class="col-md-2">
 	                <input type="month" id="map_param" class="map_param"/>
@@ -42,13 +44,13 @@
                     <input type="month" id="_2307_month" class="_2307_month"/>
                 </div>
                 <div class="col-md-1 form-group">
-                    <select class="form-control" id="_2307_partner">
+                    <select class="form-control select_dropdown" id="_2307_partner">
                     </select>
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2307_preview" style="height:800px" width="100%"></iframe></div>
+                <div class="col-md-10"><iframe id="2307_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -66,7 +68,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2550M_preview" style="height:800px" width="100%"></iframe></div>
+                <div class="col-md-10"><iframe id="2550M_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -84,7 +86,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2550Q_preview" style="height:800px" width="100%"></iframe></div>
+                <div class="col-md-10"><iframe id="2550Q_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -102,7 +104,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="1601e_preview" style="height:800px" width="100%"></iframe></div>
+                <div class="col-md-10"><iframe id="1601e_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -134,6 +136,45 @@
                 </div>
             </div>
             <div id="slp_table" class="slp_table"></div>
+        </div>
+    </t>
+
+    <t t-name="print_history">
+        <div class="col-md-12">
+            <h2 style="color:#8f8f8f; padding-top:10px">BIR Report Print History</h2>
+            <div class="row">
+                <div class="col-md-1 form-group">
+                    <select class="form-control select_dropdown" id="_print_type">
+                    </select>
+                </div>
+            </div>
+            <div id="print_history" class="print_history"></div>
+        </div>
+
+        <div class="modal fade" id="print_details_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">History Details</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div id="_print_details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="print_preview_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Preview</h5>
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="print_preview_frame" style="height:700px" width="100%"></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
     </t>
 </templates>

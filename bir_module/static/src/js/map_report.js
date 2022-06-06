@@ -54,6 +54,18 @@ var MAPReport = AbstractAction.extend({
                 alert(data)
             });
         },
+
+        "click #export_map_csv": function(){
+            var current = this.$("#map_param").val();
+
+            this._rpc({
+                model: 'account.move',
+                method: 'export_sawt_map_csv',
+                args: ['', current, 'map'],
+            }).then(function(data){
+                alert(data)
+            });
+        },
     },
 });
 

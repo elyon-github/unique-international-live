@@ -25,7 +25,7 @@
 		<t t-call='web.basic_layout'>
 			<div class="page">
 
-				<t t-set="val" t-value="env['account.move'].x_2550_forms([month, trans, trigger])"/>
+				<t t-set="val" t-value="env['account.move'].x_2550_forms([month, trans, trigger, '2550Q', tranid])"/>
 				<t t-set='company' t-value="request.env['res.company'].search([('id', '=', val[2])])"/>
 				<t t-set='payor' t-value="request.env['res.partner'].search([('id', '=', company.partner_id.id)])"/>
 
@@ -88,7 +88,7 @@
 						<div class="left" style="position: absolute; top: 65px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['K'],2))"/></div>
 						<div class="left" style="position: absolute; top: 83px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['M'],2))"/></div>
 						<div class="left" style="position: absolute; top: 101px; left: 492px;">0</div>
-						<div class="left" style="position: absolute; top: 119px; left: 492px;"><t t-esc="{:,}'.format(round(val[1]['P1'],2))"/></div>
+						<div class="left" style="position: absolute; top: 119px; left: 492px;"><t t-esc="'{:,}'.format(round(val[1]['P1'],2))"/></div>
 
 						<div class="right" 	style="position: absolute; top: 10px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['F'],2))"/></div>
 						<div class="right" 	style="position: absolute; top: 29px; left: 770px;"><t t-esc="'{:,}'.format(round(val[1]['H'],2))"/></div>
