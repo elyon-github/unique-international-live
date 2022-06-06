@@ -5,8 +5,6 @@ from datetime import datetime
 import calendar
 import psycopg2
 import os
-from pathlib import Path
-from winreg import *
 import xlwt
 import csv
 
