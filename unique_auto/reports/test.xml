@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding='utf-8'?>
+<odoo>
+	<record id="collection_slip_dummy" model="ir.actions.report">
+		<field name="name">Collection Slip Dummy</field>
+		<field name="model">account.payment</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">unique_auto.collection_slip_dummy_layout</field>
+		<field name="report_file">unique_auto.collection_slip_dummy_layout</field>
+		<field name="binding_model_id" ref="account.model_account_payment"/>
+		<field name="binding_type">report</field>
+	</record>
+
+    <template id="collection_slip_dummy_layout">
+		<t t-call='web.basic_layout'>
+			<t t-foreach="docs" t-as="doc">
+                <t t-esc="env['account.payment'].compute_ewt(doc.id)"/>
+            </t>
+        </t>
+    </template>
+</odoo>
