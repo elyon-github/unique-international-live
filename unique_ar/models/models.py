@@ -153,7 +153,7 @@ class unique_fields_header(models.Model):
 
     def _process_array(self, val, inv):
         base = val[0][1:]
-        # dp = val[0][1]
+        dp = val[0][1][4]
         billing = val[1]
         invoices = inv
 
@@ -170,7 +170,7 @@ class unique_fields_header(models.Model):
                 'To-date':{}
             }
 
-            base_subarr = {'seq':0, 'Desc':"", 'Amt':0, 'type':None, 'RelWt':0, 'unit':0, 'qty':0, 'priceUnit':0, 'billing_num': len(inv), 'date': ""}
+            base_subarr = {'seq':0, 'Desc':"", 'Amt':0, 'type':None, 'RelWt':0, 'unit':0, 'qty':0, 'priceUnit':0, 'billing_num': len(inv), 'date': "", 'DP': dp}
             previous_subarr = {'Desc':"", '%':0, 'Amt':0}
             current_subarr = {'Desc':"", '%':0, 'Amt':0}
             todate_subarr = {'Desc':"", '%':0, 'Amt':0}

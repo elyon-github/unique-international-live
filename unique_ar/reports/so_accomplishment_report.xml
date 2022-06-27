@@ -181,24 +181,60 @@
 							</table>
 						</div>
 
+						<t t-set="DP" t-value="0"/>
+						<t t-set="REC" t-value="0"/>
+
+						<t t-if="dp_dat['Base']['Amt'] == dp_dat['Current']['Amt']">
+							<t t-set="DP" t-value="'{:,}'.format(round(dp_dat['Base']['Amt'],2))"/>
+						</t>
+						<t t-if="dp_dat['Base']['Amt'] > dp_dat['Current']['Amt']">
+							<t t-set="REC" t-value="'{:,}'.format(round(dp_dat['Current']['Amt'],2))"/>
+						</t>
+
 						<!-- <t t-esc="dp_dat"/> -->
-						<div class="row">
-							<div class="col-8"></div>
-							<div class="col-4"><h5>DP: <t t-esc="'{:,}'.format(round(dp_dat['Current']['Amt'],2))"/></h5></div>
-						</div>
-						<div class="row">
-							<div class="col-8"></div>
-							<div class="col-4" style="border-bottom:1px solid black;"><h5>Subtotal: <t t-esc="'{:,}'.format(round(this_amt_total,2))"/></h5></div>
-						</div>
-						<div class="row">
-							<div class="col-8"></div>
-							<div class="col-4" style="border-bottom:1px solid black;"><h5>Net Total: <t t-esc="'{:,}'.format(round(this_amt_total+dp_dat['Current']['Amt'],2))"/></h5></div>
-						</div>
-						<div class="row">
-							<div class="col-8"></div>
-							<div class="col-4"><h5>Total Billing: <t t-esc="'{:,}'.format(round(todate_amt_total+dp_dat['To-date']['Amt'],2))"/></h5></div>
+						<div style="page-break-inside: avoid;">
+							<div class="row">
+								<div class="col-8"></div>
+								<div class="col-4"><h5>Downpayment: <t t-esc="DP"/></h5></div>
+							</div>
+							<div class="row">
+								<div class="col-8"></div>
+								<div class="col-4"><h5>Recoupment: <t t-esc="REC"/></h5></div>
+							</div>
+							<div class="row">
+								<div class="col-8"></div>
+								<div class="col-4" style="border-bottom:1px solid black;"><h5>Subtotal: <t t-esc="'{:,}'.format(round(this_amt_total,2))"/></h5></div>
+							</div>
+							<div class="row">
+								<div class="col-8"></div>
+								<div class="col-4" style="border-bottom:1px solid black;"><h5>Net Total: <t t-esc="'{:,}'.format(round(this_amt_total+dp_dat['Current']['Amt'],2))"/></h5></div>
+							</div>
+							<div class="row">
+								<div class="col-8"></div>
+								<div class="col-4"><h5>Total Billing: <t t-esc="'{:,}'.format(round(todate_amt_total+dp_dat['To-date']['Amt'],2))"/></h5></div>
+							</div>
 						</div>
 						<!-- <span>Total Billed: <t t-esc="'{:,}'.format(round(todate_amt_total+dp_dat['Current']['Amt'],2))"/></span> -->
+
+						<div style="page-break-inside: avoid;">
+							<div class="row" style="margin-top:50px">
+								<div class="col-4">Prepared By:</div>
+								<div class="col-4">Approved By:</div>
+								<div class="col-4">Conforme:</div>
+							</div>
+							<div class="row" style="margin-top:50px">
+								<div class="col-3" style="border-bottom:1px solid black;"></div>
+								<div class="col-1"></div>
+								<div class="col-3" style="border-bottom:1px solid black;"></div>
+								<div class="col-1"></div>
+								<div class="col-3" style="border-bottom:1px solid black;"></div>
+							</div>
+							<div class="row">
+								<div class="col-4">Signature over Printed Name</div>
+								<div class="col-4">Signature over Printed Name</div>
+								<div class="col-4">Signature over Printed Name</div>
+							</div>
+						</div>
 					</div>
 				<!-- </t> -->
 			</t>
