@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding='utf-8'?>
+<odoo>
+	<record id="invoice_slip_dummy" model="ir.actions.report">
+		<field name="name">Invoice Slip Dummy</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">unique_custom.invoice_slip_dummy_layout</field>
+		<field name="report_file">unique_custom.invoice_slip_dummy_layout</field>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+		<field name="binding_type">report</field>
+	</record>
+
+    <template id="invoice_slip_dummy_layout">
+		<t t-call='web.basic_layout'>
+			<t t-foreach="docs" t-as="doc">
+                <t t-esc="env['account.move'].fetch_invoice_taxes(doc.id)"/>
+            </t>
+        </t>
+    </template>
+</odoo>

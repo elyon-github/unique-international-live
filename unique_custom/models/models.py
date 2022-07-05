@@ -77,3 +77,38 @@ class inherit_account(models.Model):
         vat = self._cr.fetchall()[0]
 
         return vat[0]
+
+class invoice_taxes(models.Model):
+    _inherit = 'account.move'
+
+    def fetch_invoice_taxes(self, id):
+        tax_info = self.fetch_tax_info(id)
+        ewt = 0
+        vat = 0
+
+        for val in tax_info:
+            if val[0] != None:
+                if val[1] == 'vat':
+                    vat = val[0]
+                else:
+                    ewt = val[0]
+
+        return vat, ewt
+    
+    def fetch_tax_info(self, id):
+        query = """
+            (SELECT SUM(ABS(T0.price_total)), 'vat'
+            FROM account_move_line T0 
+            JOIN account_tax T1 ON T0.tax_line_id = T1.id 
+            WHERE T0.tax_line_id IS NOT NULL AND T0.move_id = '{0}' AND T1.amount = 12)
+            UNION 
+            (SELECT SUM(ABS(T0.price_total)), 'ewt' 
+            FROM account_move_line T0 
+            JOIN account_tax T1 ON T0.tax_line_id = T1.id 
+            WHERE T0.tax_line_id IS NOT NULL AND T0.move_id = '{0}' AND T1.amount < 0)
+            """
+        
+        self._cr.execute(query.format(id))
+        vat = self._cr.fetchall()
+
+        return vat

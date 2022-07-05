@@ -28,6 +28,7 @@
         # 'views/views.xml',
         # 'views/templates.xml',
         'reports/test.xml',
+        'reports/test_invoice.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
