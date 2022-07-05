@@ -4,8 +4,8 @@
 		<field name="name">Collection Slip Dummy</field>
 		<field name="model">account.payment</field>
 		<field name="report_type">qweb-pdf</field>
-		<field name="report_name">unique_auto.collection_slip_dummy_layout</field>
-		<field name="report_file">unique_auto.collection_slip_dummy_layout</field>
+		<field name="report_name">unique_custom.collection_slip_dummy_layout</field>
+		<field name="report_file">unique_custom.collection_slip_dummy_layout</field>
 		<field name="binding_model_id" ref="account.model_account_payment"/>
 		<field name="binding_type">report</field>
 	</record>
