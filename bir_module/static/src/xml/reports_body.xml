@@ -38,7 +38,11 @@
             <h2 style="color:#8f8f8f; padding-top:10px">BIR Form 2307</h2>
             <div class="row">
                 <div class="col-md-2">
-                    <input type="button" id="print_2307" value="Print" class="btn btn-success"/>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="button" id="print_2307" value="Print" class="btn btn-success"/>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <input type="month" id="_2307_month" class="_2307_month"/>
@@ -49,8 +53,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2307_preview" style="height:700px" width="100%"></iframe></div>
+                <div class="col-sm-5"><div id="2307_ammend_table"/></div>
+                <div class="col-md-7"><iframe id="2307_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -60,15 +64,22 @@
             <h2 style="color:#8f8f8f; padding-top:10px">BIR Form 2550M</h2>
             <div class="row">
                 <div class="col-md-2">
-                    <input type="button" id="print_2550M" value="Print" class="btn btn-success"/>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="button" id="print_2550M" value="Print" class="btn btn-success"/>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="button" id="apply_2550M_exclude" value="Preview\nExcluded" class="btn btn-danger"/>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <input type="month" id="_2550M_month" class="_2307_month"/>
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2550M_preview" style="height:700px" width="100%"></iframe></div>
+                <div class="col-sm-5"><div id="2550M_ammend_table"/></div>
+                <div class="col-md-7"><iframe id="2550M_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>
@@ -85,8 +96,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1"></div>
-                <div class="col-md-10"><iframe id="2550Q_preview" style="height:700px" width="100%"></iframe></div>
+                <div class="col-sm-5"><div id="2550Q_ammend_table"/></div>
+                <div class="col-md-7"><iframe id="2550Q_preview" style="height:700px" width="100%"></iframe></div>
             </div>
         </div>
     </t>

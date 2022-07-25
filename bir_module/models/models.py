@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import string
 from odoo import models, fields, api
 from datetime import datetime
 import calendar
 import psycopg2
+import json
 import os
 import xlwt
 import csv
@@ -66,18 +68,26 @@ class bir_reports(models.Model):
         if args[2] == 'reprint':
             transactional = self._2307_query_reprint(args)
             data.append(transactional)
+        # elif args[2] == 'ammend' or args[2] == 'ammend_view':
+        #     transactional = self._2307_query_ammend(args)
+        #     data.append(transactional)
         else:
             transactional = self._2307_query_normal(args)
             data.append(transactional)
 
-        if args[2] == 'print':
+        if args[2] == 'table':
+            init = self.process_2307_ammend(data)
+
+            data = init
+
+        if args[2] == 'ammend':
             self.record_bir_form_print(data[0], '2307', args[3], args[0][1])
 
         return data
         
     def _2307_query_reprint(self, args):
         query = """ SELECT Abs(T1.price_total)*(Abs(T3.amount)/100), T1.price_total, T5.name, T5.vat, T4.name, T3.name,
-            T0.id, T0.move_type, T0.invoice_date, T5.id  
+            T0.id, T0.move_type, T0.name, amount_total, T0.invoice_date, T5.id  
             FROM bir_module_print_history_line T6 
             JOIN account_move T0 ON T0.id = T6.move_id  
             JOIN account_move_line T1 ON T0.id = T1.move_id  
@@ -92,9 +102,39 @@ class bir_reports(models.Model):
 
         return val
 
+    # def _2307_query_ammend(self, args):
+    #     ids = args[5]
+    #     if type(args[5]) == str:
+    #         ids = json.loads(args[5])
+
+    #     query = """SELECT Abs(T1.price_total)*(Abs(T3.amount)/100), T1.price_total, T5.name, T5.vat, T4.name, T3.name,
+    #         T0.id, T0.move_type, T0.name, T0.amount_total, T0.invoice_date, T6.id 
+    #         FROM account_move T0 
+    #         JOIN account_move_line T1 ON T0.id = T1.move_id  
+    #         JOIN account_move_line_account_tax_rel T2 ON T1.id = T2.account_move_line_id 
+    #         JOIN account_tax T3 ON T2.account_tax_id = T3.id 
+    #         JOIN bir_module_atc_setup T4 ON T3.id = T4.tax_id 
+    #         JOIN res_partner T5 ON T0.partner_id = T5.id 
+    #         LEFT JOIN bir_module_print_history_line T6 ON T6.move_id = T0.id AND T6.form_type = '2307'
+    #         WHERE """
+
+    #     ctr = 1
+    #     for id in ids:
+    #         if len(ids) == ctr:
+    #             query += "T0.id = " + str(id)
+    #         else:
+    #             query += "T0.id = " + str(id) + " OR "
+
+    #         ctr += 1
+
+    #     self._cr.execute(query)
+    #     val = self._cr.fetchall()
+
+    #     return val
+
     def _2307_query_normal(self, args):
         query = """ SELECT Abs(T1.price_total)*(Abs(T3.amount)/100), T1.price_total, T5.name, T5.vat, T4.name, T3.name,
-            T0.id, T0.move_type {2} 
+            T0.id, T0.move_type, T0.name, T0.amount_total {2} 
             FROM account_move T0 
             JOIN account_move_line T1 ON T0.id = T1.move_id  
             JOIN account_move_line_account_tax_rel T2 ON T1.id = T2.account_move_line_id 
@@ -122,7 +162,7 @@ class bir_reports(models.Model):
             parameter = kwargs['id'][1].replace("-", " ").split()
             span = self.check_quarter_2307(int(parameter[1]))
 
-            param = " AND T0.partner_id = " + kwargs['id'][0] + " AND T6.id IS NULL AND "
+            param = " AND T0.partner_id = " + str(kwargs['id'][0]) + " AND T6.id IS NULL AND "
             param += self.sawt_map_params(span, parameter[0])
 
             field = ", T0.invoice_date, T6.id "
@@ -146,7 +186,7 @@ class bir_reports(models.Model):
 
             for dat in data:
                 if atc == dat[4]:
-                    month_num = self.get_bir_month_num(dat[8])
+                    month_num = self.get_bir_month_num(dat[10])
 
                     if month_num == '1':
                         dict['m1'] += dat[1]
@@ -196,32 +236,65 @@ class bir_reports(models.Model):
 
         return final
     
+    def process_2307_ammend(self, data):
+        cont = []
+        temp_out = ()
+        final = []
+
+        for val in data[0]:
+            cont.append(val[6])
+
+        temp_in = set(cont)
+        temp_out = tuple(temp_in)
+
+        for bp in temp_out:
+            dict = []
+            total = 0
+            for dat in data[0]:
+                if bp == dat[6]:   
+                    total = dat[9]
+                    dict = [dat[6], dat[8], dat[7], total]
+            final.append(dict)
+        
+        return final
+    
 ##############################################################################################################################################################################
 ################################################################ 2550M & 2550Q ###############################################################################################
 ##############################################################################################################################################################################
 
     def x_2550_print_action(self, args):
         if args['trans'] == '2550M':
-            return self.env.ref('bir_module.bir_form_2550M').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none'})
+            return self.env.ref('bir_module.bir_form_2550M').report_action(self,data={'name':'BIR Form 2550M', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none', 'ids': args['ids']})
         else:
-            return self.env.ref('bir_module.bir_form_2550Q').report_action(self,data={'name':'BIR Form 2550Q', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none'})
+            return self.env.ref('bir_module.bir_form_2550Q').report_action(self,data={'name':'BIR Form 2550Q', 'month': args['month'], 'trans': args['trans'], 'trigger': args['trigger'], 'tranid': 'none', 'ids': 'none'})
 
     def x_2550_forms(self, args):
         val = []
         
         if args[2] == 'reprint':
             val = self.fetch_2550_data_reprint(args)
+        elif args[2] == 'exclude-view' or args[2] == 'exclude-print':
+            val = self.fetch_2550_exclude_data(args)
         else:
             val = self.fetch_2550_data_normal(args)
-        
-        if args[2] == 'print':
+
+        if args[2] == 'print' or args[2] == 'exclude-print':
             self.record_bir_form_print(val, '2550', args[3], args[0])
 
         processed = self.x_2550_process_data(val)
         return processed
     
+    def fetch_2550_table_docs_data(self, args):
+        processed = []
+        val = self.fetch_2550_data_normal(args)
+
+        if args[2] == 'table':
+            processed = self.process_2550_ammend(val)
+        
+        return processed
+    
     def fetch_2550_data_reprint(self, args):
-        query = """SELECT T1.move_type, T2.price_total, T2.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T1.id, T1.move_type  
+        query = """SELECT T1.move_type, T2.price_total, T2.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T1.id, T1.name, T1.amount_total 
             FROM bir_module_print_history_line T0 
             JOIN account_move T1 ON T1.id = T0.move_id 
             JOIN account_move_line T2 ON T1.id = T2.move_id AND T2.exclude_from_invoice_tab = 'true' 
@@ -235,11 +308,38 @@ class bir_reports(models.Model):
 
         return val
 
+    def fetch_2550_exclude_data(self, args):
+        ids = args[5]
+        if type(args[5]) == str:
+            ids = json.loads(args[5])
+        
+        query = """SELECT T0.move_type, T1.price_total, T1.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T0.id, T0.name, T0.amount_total
+            FROM account_move T0 
+            JOIN account_move_line T1 ON T0.id = T1.move_id AND T1.exclude_from_invoice_tab = 'true' 
+            JOIN account_tax T3 ON T3.id = T1.tax_line_id AND T3.amount >= 0 
+            JOIN res_partner T4 ON T4.id = T0.partner_id 
+            LEFT JOIN res_partner_industry T5 ON T5.id = T4.industry_id 
+            LEFT JOIN stock_landed_cost T6 ON T0.id = T6.vendor_bill_id 
+            WHERE """
+        ctr = 1
+        for id in ids:
+            if len(ids) == ctr:
+                query += "T0.id = " + str(id)
+            else:
+                query += "T0.id = " + str(id) + " OR "
+
+            ctr += 1
+
+        self._cr.execute(query)
+        val = self._cr.fetchall()
+
+        return val
+
     def fetch_2550_data_normal(self, args):
         param = args[0].replace("-", " ").split()
         #                   AR or AP    TAX total per line  line total      tax Name    tax Amount       ven/cust name  industry    has landed cost?
         #                   0           1               2                   3           4           5           6       7       8       9
-        query = """ SELECT T0.move_type, T1.price_total, T1.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T0.id, T0.move_type {3}
+        query = """ SELECT T0.move_type, T1.price_total, T1.tax_base_amount, T3.name, T3.amount, T3.tax_scope, T4.name, T5.name, T0.id, T0.name, T0.amount_total {3}
             FROM account_move T0 
             JOIN account_move_line T1 ON T0.id = T1.move_id AND T1.exclude_from_invoice_tab = 'true' 
             {2}
@@ -335,6 +435,28 @@ class bir_reports(models.Model):
             select = ", T2.id"
 
         return query, join, select
+    
+    def process_2550_ammend(self, data):
+        cont = []
+        temp_out = ()
+        final = []
+
+        for val in data:
+            cont.append(val[8])
+
+        temp_in = set(cont)
+        temp_out = tuple(temp_in)
+
+        for move in temp_out:
+            dict = []
+            total = 0
+            for dat in data:
+                if move == dat[8]: 
+                    # total = dat[0]
+                    dict = [dat[8], dat[9], dat[0], dat[10]]
+            final.append(dict)
+        
+        return final
     
 
 ##############################################################################################################################################################################
@@ -660,7 +782,7 @@ class bir_reports(models.Model):
         curr_datetime = datetime.today().strftime("%d/%m/%Y")
         if process == '2550':
             for val in arr:
-                data.append([val[8],'2550', self._uid, curr_datetime, val[9]])
+                data.append([val[8],'2550', self._uid, curr_datetime, val[0]])
         elif process == '2307':
             temp = []
             set_temp = {}
@@ -791,17 +913,37 @@ class bir_reports(models.Model):
 
         return {'month': str(month), 'year': str(year), 'date': str(range[1])}
 
+    # def x_format_vat(self, vat):
+    #     val = ""
+    #     if vat != False:
+    #         val = vat[:3] + "-" + vat[3:6] + "-" + vat[6:]
+
+    #     return str(val)
+
+    # def x_slice_vat(self, vat):
+    #     val = []
+    #     if vat != False:
+    #         val = [vat[:3], vat[3:6], vat[6:], '000']
+
+    #     return val
+
     def x_format_vat(self, vat):
         val = ""
         if vat != False:
-            val = vat[:3] + "-" + vat[3:6] + "-" + vat[6:]
+            if vat[3] == "-":
+                val = vat
+            else:
+                val = vat[:3] + "-" + vat[4:6] + "-" + vat[7:]
 
         return str(val)
 
     def x_slice_vat(self, vat):
         val = []
         if vat != False:
-            val = [vat[:3], vat[3:6], vat[6:], '000']
+            if vat[3] == "-":
+                val = [vat[:3], vat[4:7], vat[8:], '000']
+            else:
+                val = [vat[:3], vat[3:6], vat[6:], '000']
 
         return val
 

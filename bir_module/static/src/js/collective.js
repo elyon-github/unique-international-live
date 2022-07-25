@@ -278,3 +278,55 @@ function construct_print_details(data) {
 
 	return html
 }
+
+function construct_ammendment_no_action(data){
+	html = "<table class='table table-striped table-hover dt-responsive nowrap' id='bir_ammend_table'><thead><tr>";
+
+	html += "<th scope='col'>id</th>\
+		<th scope='col'>Name</th>\
+		<th scope='col'>Type</th>\
+		<th scope='col'>Document Total</th>\
+		</tr></thead><tbody>";
+		
+	for(let y in data){
+		scope = "Vendor Bill";
+		if(data[y][2] == 'out_invoice'){
+			scope = "Customer Invoice";
+		}
+		html += "<tr>\
+			<td>"+data[y][0]+"</td>\
+			<td>"+data[y][1]+"</td>\
+			<td>"+scope+"</td>\
+			<td>"+numberWithCommas(data[y][3])+"</td></tr>"
+	}
+
+	html += "</tbody></table>";
+	return html
+}
+
+function construct_ammendment(data){
+	html = "<table class='table table-striped table-hover dt-responsive nowrap' id='bir_ammend_table'><thead><tr>";
+
+	html += "<th scope='col'>id</th>\
+		<th scope='col'>Name</th>\
+		<th scope='col'>Type</th>\
+		<th scope='col'>Document Total</th>\
+		<th scope='col'>Exclude</th>\
+		</tr></thead><tbody>";
+		
+	for(let y in data){
+		scope = "Vendor Bill";
+		if(data[y][2] == 'out_invoice'){
+			scope = "Customer Invoice";
+		}
+		html += "<tr>\
+			<td>"+data[y][0]+"</td>\
+			<td>"+data[y][1]+"</td>\
+			<td>"+scope+"</td>\
+			<td>"+numberWithCommas(data[y][3])+"</td>\
+			<td class='form-check'><center><input type='checkbox' class='form-check-input' id='2307-ammend-check'/></center></td></tr>"
+	}
+
+	html += "</tbody></table>";
+	return html
+}
